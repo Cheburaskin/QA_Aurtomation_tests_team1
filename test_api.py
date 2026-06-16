@@ -8,13 +8,17 @@ Run with:  pytest test_api.py -v
 """
 
 import time
+import pytest
 from playwright.sync_api import Playwright
 
 BASE = "https://sv-students-recommend.onrender.com"
 
+pytestmark = pytest.mark.api
+
 
 # ── A1 · Positive — Register a new user ───────────────────────────────────────
 
+@pytest.mark.positive
 def test_A1_register_new_user(playwright: Playwright):
     """
     A1 · Positive
@@ -41,6 +45,7 @@ def test_A1_register_new_user(playwright: Playwright):
 
 # ── A2 · Positive — Login success ─────────────────────────────────────────────
 
+@pytest.mark.positive
 def test_A2_login_success(playwright: Playwright, fresh_user: dict):
     """
     A2 · Positive
@@ -68,6 +73,7 @@ def test_A2_login_success(playwright: Playwright, fresh_user: dict):
 
 # ── A3 · Positive — Create recommendation (mandatory fields only) ──────────────
 
+@pytest.mark.positive
 def test_A3_create_recommendation_mandatory_only(playwright: Playwright,
                                                   fresh_user_token: str):
     """
@@ -99,6 +105,7 @@ def test_A3_create_recommendation_mandatory_only(playwright: Playwright,
 
 # ── A4 · Negative — Create recommendation with empty category ─────────────────
 
+@pytest.mark.negative
 def test_A4_create_recommendation_empty_category(playwright: Playwright,
                                                    fresh_user_token: str):
     """
@@ -131,6 +138,7 @@ def test_A4_create_recommendation_empty_category(playwright: Playwright,
 
 # ── A7 · Positive — List all recommendations ──────────────────────────────────
 
+@pytest.mark.positive
 def test_A7_list_all_recommendations(playwright: Playwright):
     """
     A7 · Positive
@@ -155,6 +163,7 @@ def test_A7_list_all_recommendations(playwright: Playwright):
 
 # ── A8 · Negative — Login with wrong password ─────────────────────────────────
 
+@pytest.mark.negative
 def test_A8_login_wrong_password(playwright: Playwright, fresh_user: dict):
     """
     A8 · Negative
