@@ -10,11 +10,12 @@ import pytest
 from dotenv import load_dotenv
 from playwright.sync_api import Playwright, Page
 
+# Load environment variables from a .env file (if present)
 load_dotenv()
 
 BASE_URL = os.environ.get("BASE_URL", "https://sv-students-recommend.onrender.com")
 
-ADMIN_EMAIL    = os.environ.get("ADMIN_EMAIL")
+ADMIN_EMAIL    = os.environ.get("ADMIN_EMAIL", "hagai@svcollege.co.il")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 if not ADMIN_EMAIL or not ADMIN_PASSWORD:
     raise RuntimeError(
