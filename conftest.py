@@ -17,6 +17,9 @@ BASE_URL = os.environ.get("BASE_URL", "https://sv-students-recommend.onrender.co
 
 ADMIN_EMAIL    = os.environ.get("ADMIN_EMAIL", "hagai@svcollege.co.il")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+STUDENT_EMAIL  = os.environ.get("STUDENT_EMAIL")
+STUDENT_PASSWORD = os.environ.get("STUDENT_PASSWORD")
+
 if not ADMIN_EMAIL or not ADMIN_PASSWORD:
     raise RuntimeError(
         "ADMIN_EMAIL and ADMIN_PASSWORD must be set in a .env file "
@@ -77,6 +80,8 @@ def fresh_user(playwright: Playwright) -> dict:
     return api_register_and_login(playwright)
 
 
+
+
 @pytest.fixture()
 def fresh_user_token(fresh_user: dict) -> str:
     return fresh_user["token"]
@@ -95,8 +100,8 @@ def admin_page(page: Page) -> Page:
 @pytest.fixture()
 def fast_logged_in_page(page: Page, fresh_user: dict) -> Page:
     page.goto(f"{BASE_URL}/pages/login.html")
-    page.get_by_label("Email").fill(fresh_user["email"])
-    page.locator('[data-test="input-password"]').fill(fresh_user["password"])
+    page.get_by_label("Email").fill(STUDENT_EMAIL)
+    page.locator('[data-test="input-password"]').fill(STUDENT_PASSWORD)
     page.get_by_role("button", name="Sign In").click()
     expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
     return page

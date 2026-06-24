@@ -22,22 +22,12 @@ pytestmark = pytest.mark.ui
 # ── U1 · Positive — Login flow ───────────────────────────────────────
 
 @pytest.mark.positive
-def test_U1_ui_login(page: Page, fresh_user: dict):
+def test_U1_ui_login(fast_logged_in_page: Page):
     """
     U1 · Positive
-    Navigate to the login page and log in via the UI using a freshly 
-    registered API user.
+    Navigate to the login page and log in 
     """
-    # 1. Navigate to the page
-    page.goto(f"{BASE_URL}/pages/login.html")
-
-    # 2. Interact with UI elements
-    page.get_by_label("Email").fill(fresh_user["email"])
-    page.locator('[data-test="input-password"]').fill(fresh_user["password"])
-    page.get_by_role("button", name="Sign In").click()
-
-    # 3. Assert the UI state changed correctly
-    # expect() automatically waits for the URL to change
+    page = fast_logged_in_page
     expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
 
 # ── U9 · Negative — Invalid login ─────────────────────────────
@@ -81,9 +71,10 @@ def test_U8_ui_logout(fast_logged_in_page: Page):
     Log out of the application via the UI.
     Verify the user is redirected to the login page.
     """
-    expect(fast_logged_in_page).to_have_url(f"{BASE_URL}/pages/home.html") 
-    fast_logged_in_page.locator("[data-test=\"nav-logout\"]").click()
-    expect(fast_logged_in_page).to_have_url(f"{BASE_URL}/pages/login.html")
+    page = fast_logged_in_page
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html") 
+    page.locator("[data-test=\"nav-logout\"]").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/login.html")
 
 # ── U17 · Positive — Password min - valid 6 (chars) ───────────────────────────── 
 
@@ -132,3 +123,43 @@ def test_U18_ui_password_min_invalid_3_chars(page: Page, make_unique_email_f: st
     expect(page).to_have_url(f"{BASE_URL}/pages/register.html")
     expect(page.locator('[data-test="error-message"]')).to_be_visible()
     expect(page.locator('[data-test="error-message"]')).to_have_text("Password must be at least 4 characters.")
+
+# ── U12 · Negative — Access control via URL ───────────────────────────── 
+
+@pytest.mark.negative 
+def test_U12_ui_access_control_via_url(fast_logged_in_page: Page):
+    """
+    U12 · Negative
+    Attempt to access a protected page with the url without valid authentication.
+    Verify the user is denied
+    """
+    page = fast_logged_in_page
+    #page.pause()  # Optional: Pause to see the page before navigating
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in
+    page.goto(f"{BASE_URL}/pages/admin.html")
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html") # Stay on the current page 
+
+# ── U3 · Positive — Create recommendation ───────────────────────────── 
+
+@pytest.mark.positive
+def test_U3_ui_create_recommendation(fast_logged_in_page: Page):
+    """
+    U3 · Positive
+    Create a new recommendation via the UI.
+    Verify the recommendation is created successfully.
+    """
+    page = fast_logged_in_page
+    #page.pause()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in
+    page.locator("[data-test=\"nav-signup-recommendations\"]").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/add-recommendation.html") # Stay on the current page
+    page.get_by_label("Recommendation Name").fill("Test12345")
+    page.get_by_label("Description").fill("test")
+    page.get_by_label("Website Link").fill("https://www.goodreads.com/book/show/865.The_Alchemist")
+    page.get_by_role("button", name="Submit").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
+    expect(page.get_by_text("Test12345")).to_be_visible()
+    page.get_by_text("Test12345").click()
+    page.locator("[data-test=\"btn-delete-recommendation\"]").click()
+    page.locator("[data-test=\"btn-confirm-delete\"]").click()
+
