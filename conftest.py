@@ -104,6 +104,7 @@ def fast_logged_in_page(page: Page, fresh_user: dict) -> Page:
     page.locator('[data-test="input-password"]').fill(STUDENT_PASSWORD)
     page.get_by_role("button", name="Sign In").click()
     expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
+    page.wait_for_load_state("networkidle")
     return page
 
 @pytest.fixture()
