@@ -43,7 +43,7 @@ def test_U1_ui_login(page: Page, fresh_user: dict):
 # ── U9 · Negative — Invalid login ─────────────────────────────
 
 @pytest.mark.negative
-def test_U9_ui_login_invalid_credentials(page: Page):
+def test_U9_ui_login_invalid_credentials(page: Page, make_unique_email_f: str):
     """
     U9 · Negative
     Attempt to log in with invalid credentials.
@@ -54,7 +54,7 @@ def test_U9_ui_login_invalid_credentials(page: Page):
 
     # 2. Generate a totally fake email using the current clock time 
     # to guarantee it has never been registered
-    fake_email = f"ghost_user_{int(time.time())}@example.com"
+    fake_email = make_unique_email_f
 
     # 3. Fill the form (using the strict-mode safe password locator you just fixed!)
     page.get_by_label("Email").fill(fake_email)
@@ -88,7 +88,7 @@ def test_U8_ui_logout(fast_logged_in_page: Page):
 # ── U17 · Positive — Password min - valid 6 (chars) ───────────────────────────── 
 
 @pytest.mark.positive
-def test_U17_ui_password_min_valid_6_chars(page: Page):
+def test_U17_ui_password_min_valid_6_chars(page: Page, make_unique_email_f: str):
     """
     U17 · Positive
     Register a new user with a password of exactly 6 characters.
@@ -98,7 +98,7 @@ def test_U17_ui_password_min_valid_6_chars(page: Page):
     page.goto(f"{BASE_URL}/pages/register.html")
     #page.pause()  # Optional: Pause to see the page before filling the form
     # 2. Fill the registration form with a valid password of 6 characters
-    unique_email = f"user{int(time.time())}@example.com"
+    unique_email = make_unique_email_f
     page.get_by_label("Name").fill("Test User")
     page.get_by_label("Email").fill(unique_email)
     page.locator('[data-test="input-password"]').fill("123456")  # 6 chars
@@ -112,7 +112,7 @@ def test_U17_ui_password_min_valid_6_chars(page: Page):
 # ── U18 · Positive — Password min - invalid 3 (chars) ───────────────────────────── 
 
 @pytest.mark.negative
-def test_U18_ui_password_min_invalid_3_chars(page: Page):
+def test_U18_ui_password_min_invalid_3_chars(page: Page, make_unique_email_f: str):
     """
     U18 · Negative
     Register a new user with a password of exactly 3 characters.
@@ -122,7 +122,7 @@ def test_U18_ui_password_min_invalid_3_chars(page: Page):
     page.goto(f"{BASE_URL}/pages/register.html")
     #page.pause()  # Optional: Pause to see the page before filling the form
     # 2. Fill the registration form with an invalid password of 3 characters
-    unique_email = f"user{int(time.time())}@example.com"
+    unique_email = make_unique_email_f
     page.get_by_label("Name").fill("Test User")
     page.get_by_label("Email").fill(unique_email)
     page.locator('[data-test="input-password"]').fill("123")  # 3 chars
