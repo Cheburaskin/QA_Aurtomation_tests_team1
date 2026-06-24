@@ -8,7 +8,7 @@ import os
 import time
 import pytest
 from dotenv import load_dotenv
-from playwright.sync_api import Playwright, Page
+from playwright.sync_api import Playwright, Page, expect
 
 # Load environment variables from a .env file (if present)
 load_dotenv()
@@ -89,4 +89,14 @@ def admin_page(page: Page) -> Page:
     page.get_by_label("Password").fill(ADMIN_PASSWORD)
     page.get_by_role("button", name="Sign In").click()
     page.wait_for_url("**/home.html")
+    return page
+
+
+@pytest.fixture()
+def fast_logged_in_page(page: Page, fresh_user: dict) -> Page:
+    page.goto(f"{BASE_URL}/pages/login.html")
+    page.get_by_label("Email").fill(fresh_user["email"])
+    page.locator('[data-test="input-password"]').fill(fresh_user["password"])
+    page.get_by_role("button", name="Sign In").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
     return page
