@@ -12,7 +12,6 @@ import pytest
 from playwright.sync_api import Page, expect
 import os
 
-from conftest import fresh_user
 
 
 BASE_URL = os.environ.get("BASE_URL", "https://sv-students-recommend.onrender.com")
