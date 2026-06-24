@@ -11,7 +11,7 @@ import time
 import pytest
 from playwright.sync_api import Page, expect
 import os
-
+import re
 
 
 BASE_URL = os.environ.get("BASE_URL", "https://sv-students-recommend.onrender.com")
@@ -163,3 +163,109 @@ def test_U3_ui_create_recommendation(fast_logged_in_page: Page):
     page.locator("[data-test=\"btn-delete-recommendation\"]").click()
     page.locator("[data-test=\"btn-confirm-delete\"]").click()
 
+# ── U4 · Positive — Logo Navigation ───────────────────────────── 
+
+@pytest.mark.positive
+def test_U4_ui_logo_navigation(fast_logged_in_page: Page):
+    """
+    U4 · Positive
+    Click the logo to navigate back to the home page.
+    Verify the navigation is successful.
+    """
+    page = fast_logged_in_page
+    #page.pause()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in
+    page.locator("[data-test=\"nav-profile\"]").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/profile.html") 
+    page.get_by_role("link", name="SV College SV Recommend ").click()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html") 
+
+# ── U5 · Positive — Register then login ─────────────────────────────
+
+@pytest.mark.positive
+def test_U5_ui_register_then_login(page: Page, make_unique_email_f: str):
+    """
+    U5 · Positive
+    Register a new user via the UI and then log in with the new credentials.
+    Verify both registration and login are successful.
+    """
+    # 1. Navigate to the registration page
+    page.goto(f"{BASE_URL}/pages/register.html")
+    #page.pause()  # Optional: Pause to see the page before filling the form
+    # 2. Fill the registration form with a valid password of 6 characters
+    unique_email = make_unique_email_f
+    page.get_by_label("Name").fill("Test User")
+    page.get_by_label("Email").fill(unique_email)
+    page.locator('[data-test="input-password"]').fill("123456")  # 6 chars
+    page.get_by_role("button", name="Create Account").click()
+
+    # 3. Assert that the registration was successful
+    expect(page).to_have_url(f"{BASE_URL}/pages/login.html?registered=true")
+    expect(page.locator('[data-test=\"registered-banner\"]')).to_be_visible()
+    expect(page.locator('[data-test=\"registered-banner\"]')).to_have_text("Account created successfully! Please sign in.")
+    
+    # 4. Log in with the new credentials
+    page.get_by_label("Email").fill(unique_email)
+    page.locator('[data-test="input-password"]').fill("123456")
+    page.get_by_role("button", name="Sign In").click()
+
+    # 5. Assert that the login was successful
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
+
+# ── U6 · Positive — Filter Recommendations ─────────────────────────────
+
+@pytest.mark.positive
+def test_U6_ui_filter_recommendations(fast_logged_in_page: Page):
+    """
+    U6 · Positive
+    Filter recommendations by a specific keyword.
+    Verify the filtered results are displayed correctly.
+    """
+    page = fast_logged_in_page
+    #page.pause()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in
+    movie_button = page.locator('[data-test="filter-movie"]')
+    movie_button.click()
+    expect(movie_button).to_have_class(re.compile(r"active"))  # Check if the button has the 'active' class
+
+# ── U7 · Positive — Add to cart updates counter ─────────────────────────────
+
+@pytest.mark.positive
+def test_U7_ui_add_to_cart_updates_counter(fast_logged_in_page: Page):
+    """
+    U7 · Positive
+    Add an item to the cart and verify that the cart counter updates correctly.
+    """
+    page = fast_logged_in_page
+    #page.pause()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in
+    page.locator("[data-test=\"nav-store\"]").click()
+    page.locator("[data-test=\"btn-add-tshirt\"]").click()
+    expect(page.locator("[data-test=\"cart-badge\"]")).to_have_text("1") 
+    page.locator("[data-test=\"nav-cart\"]").click() 
+    page.get_by_role("button", name="Remove").click()   
+    expect(page.get_by_text("Your cart is empty.")).to_be_visible()
+
+# ── U10 · Negative — Payment validation - empty card ─────────────────────────────
+
+@pytest.mark.negative
+def test_U10_ui_payment_validation_empty_card(fast_logged_in_page: Page):
+    """
+    U10 · Negative
+    Attempt to proceed with payment with an empty card.
+    Verify that the payment is not processed and an error message is displayed.
+    """
+    page = fast_logged_in_page
+    #page.pause()
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html")  # Ensure logged in 
+    page.locator("[data-test=\"nav-store\"]").click()
+    page.locator("[data-test=\"btn-add-tshirt\"]").click()
+    page.locator("[data-test=\"nav-cart\"]").click()
+    page.get_by_role("button", name="Proceed to Payment").click()
+    page.get_by_label("Full Name").fill("Test Guy")  
+    page.get_by_label("Address").fill("123 Test St")
+    page.get_by_role("button", name="Place Order").click()
+    expect(page.get_by_text("Please fill in all required fields.")).to_be_visible()
+    page.locator("[data-test=\"nav-cart\"]").click() 
+    page.get_by_role("button", name="Remove").click()   
+    expect(page.get_by_text("Your cart is empty.")).to_be_visible()
