@@ -149,10 +149,8 @@ See `pytest_commands.md` for full list of run options.
 
 | # | Test | SRS says | App does | Verdict |
 |---|------|----------|----------|---------|
-| 1 | A1, U17, U18 | Password min **4** chars (English SRS) | API enforces min **6** chars | 🐛 Bug — SRS contradicts API |
-| 2 | A4 | Returns **400** Bad Request | Returns **422** Unprocessable Entity | ⚠️ Minor — both mean validation failure |
-| 3 | A3 | Field named `your_name` (implied) | Real field is `recommender_name` | ⚠️ SRS doesn't specify field names |
-
+| 1 | A1, U17, U18 | Password minimum **4** chars (English SRS 3.1.2) | API enforces minimum **6** chars — error: "Password should be at least 6 characters." | 🐛 Bug — SRS contradicts API |
+| 2 | A4 | Empty category → **400** rejected, recommendation not created (SRS 3.3.3) | API returns **201** and defaults category to 'Movie' — mandatory field not validated | 🐛 Bug — API accepts invalid data |
 ---
 
 ## Technical notes
