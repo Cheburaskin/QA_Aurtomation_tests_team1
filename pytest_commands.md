@@ -1,152 +1,200 @@
 # Pytest Commands Guide
 ## SV Students Recommend — QA Automation Project
 
+Use the project virtual environment on Windows:
+
+```powershell
+.\venv\Scripts\python.exe -m pytest ...
+```
+
+If your terminal already has the virtual environment activated, you can also use `pytest ...`.
+
 ---
 
-## Basic runs
+## Basic Runs
 
-```bash
+```powershell
 # Run all tests
-pytest -v
+.\venv\Scripts\python.exe -m pytest -v
 
-# Run with visible browser
-pytest -v --headed
+# Run all tests with the browser visible
+.\venv\Scripts\python.exe -m pytest -v --headed
 
-# Run in slow motion (easier to follow)
-pytest -v --headed --slowmo 500
+# Run with slow motion for easier debugging
+.\venv\Scripts\python.exe -m pytest -v --headed --slowmo 500
+
+# Short traceback output
+.\venv\Scripts\python.exe -m pytest -v --tb=short
 ```
 
 ---
 
-## Run by file
+## Run By File
 
-```bash
-pytest test_api.py -v
-pytest test_ui_positive.py -v --headed
-pytest test_ui_negative.py -v --headed
-pytest test_ui_boundary.py -v --headed
-pytest test_ui_features.py -v --headed
+```powershell
+# API tests
+.\venv\Scripts\python.exe -m pytest test_api.py -v
+
+# UI tests
+.\venv\Scripts\python.exe -m pytest test_ui.py -v
+
+# UI tests with visible browser
+.\venv\Scripts\python.exe -m pytest test_ui.py -v --headed
+
+# Bonus tests
+.\venv\Scripts\python.exe -m pytest test_bonus.py -v
+
+# Bonus tests with visible browser
+.\venv\Scripts\python.exe -m pytest test_bonus.py -v --headed
 ```
 
 ---
 
-## Run by marker
+## Run By Marker
 
-```bash
-# Only API tests
-pytest -m api -v
+```powershell
+# API tests
+.\venv\Scripts\python.exe -m pytest -m api -v
 
-# Only UI tests
-pytest -m ui -v
+# UI tests
+.\venv\Scripts\python.exe -m pytest -m ui -v
 
-# Only smoke tests (quick sanity check)
-pytest -m smoke -v
+# Mobile / responsive tests
+.\venv\Scripts\python.exe -m pytest -m mobile -v
 
-# Only sanity tests
-pytest -m sanity -v
+# Smoke tests
+.\venv\Scripts\python.exe -m pytest -m smoke -v
 
-# Only error handling tests
-pytest -m errors_handling -v
+# Sanity tests
+.\venv\Scripts\python.exe -m pytest -m sanity -v
 
-# Only boundary value tests
-pytest -m boundary -v
+# Regression tests
+.\venv\Scripts\python.exe -m pytest -m regression -v
 
-# Only mobile tests
-pytest -m mobile -v
+# Error handling / validation tests
+.\venv\Scripts\python.exe -m pytest -m errors_handling -v
 
-# Only regression tests
-pytest -m regression -v
+# Boundary tests
+.\venv\Scripts\python.exe -m pytest -m boundary -v
 
-# Combine markers (API AND sanity)
-pytest -m "api and sanity" -v
+# Positive flows
+.\venv\Scripts\python.exe -m pytest -m positive -v
 
-# Exclude a marker (all except mobile)
-pytest -m "not mobile" -v
+# Negative flows
+.\venv\Scripts\python.exe -m pytest -m negative -v
+
+# System / bonus scenarios
+.\venv\Scripts\python.exe -m pytest -m system -v
+
+# Combine markers
+.\venv\Scripts\python.exe -m pytest -m "api and sanity" -v
+
+# Exclude mobile tests
+.\venv\Scripts\python.exe -m pytest -m "not mobile" -v
 ```
 
 ---
 
-## Run a single test
+## Run Single Tests
 
-```bash
-pytest test_api.py::test_A7_list_all_recommendations -v
-pytest test_ui_positive.py::test_U1_login_success -v --headed
-```
+```powershell
+# Single API test
+.\venv\Scripts\python.exe -m pytest test_api.py::test_A7_list_all_recommendations -v
 
----
+# New profile API tests
+.\venv\Scripts\python.exe -m pytest test_api.py::test_A9_get_current_user_profile -v
+.\venv\Scripts\python.exe -m pytest test_api.py::test_A10_get_current_bearer_token -v
 
-## Parallel execution
+# Single UI test
+.\venv\Scripts\python.exe -m pytest test_ui.py::test_U1_ui_login -v --headed
 
-```bash
-# Install first:
-pip install pytest-xdist
-
-# Run 4 tests in parallel
-pytest -n 4 -v
-
-# Run 2 in parallel
-pytest -n 2 -v
+# Single bonus test
+.\venv\Scripts\python.exe -m pytest test_bonus.py::test_B1_blacklisted_email_cannot_register -v --headed
 ```
 
 ---
 
 ## Reports
 
-```bash
-# Generate HTML report (install first: pip install pytest-html)
-pytest -v --html=test-results/report.html --self-contained-html
-
-# Generate JUnit XML (for CI/CD)
-pytest -v --junitxml=test-results/results.xml
-
-# Show summary only (no full output)
-pytest -v --tb=short
-
-# Show only failures
-pytest -v --tb=long -q
-```
-
----
-
-## Browser options
-
-```bash
-# Run on Firefox
-pytest --browser firefox -v --headed
-
-# Run on WebKit (Safari)
-pytest --browser webkit -v --headed
-
-# Run on all browsers
-pytest --browser chromium --browser firefox --browser webkit -v
-```
-
----
-
-## Useful combinations
-
-```bash
-# Quick smoke check (fast, no browser window)
-pytest -m smoke -v
-
-# Full regression run with report
-pytest -m regression -v --html=test-results/report.html --self-contained-html
-
-# Debug a failing test (headed + slow)
-pytest test_ui_positive.py::test_U1_login_success -v --headed --slowmo 800
-
-# API tests only, fast
-pytest -m api -v --tb=short
-```
-
----
-
-## Environment variables (set before running)
+HTML reports are supported with `pytest-html`. The main report is created at `test-results/report.html` and can be opened in any browser.
 
 ```powershell
-# Windows PowerShell:
-$env:ADMIN_PASSWORD = "test1234"
-$env:ADMIN_USER     = "admin@svcollege.co.il"
+# HTML report
+.\venv\Scripts\python.exe -m pytest -v --html=test-results/report.html --self-contained-html
 
-# Or just use the .env file (already configured)
+# API report only
+.\venv\Scripts\python.exe -m pytest test_api.py -v --html=test-results/api-report.html --self-contained-html
+
+# UI report only
+.\venv\Scripts\python.exe -m pytest test_ui.py -v --html=test-results/ui-report.html --self-contained-html
+
+# JUnit XML report
+.\venv\Scripts\python.exe -m pytest -v --junitxml=test-results/results.xml
+```
+
+`conftest.py` also writes a text summary to `test-results/results.txt` at the end of each run.
+
+---
+
+## Browser Options
+
+```powershell
+# Run on Chromium
+.\venv\Scripts\python.exe -m pytest --browser chromium -v
+
+# Run on Firefox
+.\venv\Scripts\python.exe -m pytest --browser firefox -v --headed
+
+# Run on WebKit
+.\venv\Scripts\python.exe -m pytest --browser webkit -v --headed
+
+# Run on all three browsers
+.\venv\Scripts\python.exe -m pytest --browser chromium --browser firefox --browser webkit -v
+```
+
+---
+
+## Parallel Execution
+
+Parallel execution requires `pytest-xdist`.
+
+```powershell
+# Install if needed
+.\venv\Scripts\python.exe -m pip install pytest-xdist
+
+# Run 2 workers
+.\venv\Scripts\python.exe -m pytest -n 2 -v
+
+# Run 4 workers
+.\venv\Scripts\python.exe -m pytest -n 4 -v
+```
+
+---
+
+## Useful Combinations
+
+```powershell
+# Quick smoke check
+.\venv\Scripts\python.exe -m pytest -m smoke -v
+
+# API tests with short failure output
+.\venv\Scripts\python.exe -m pytest test_api.py -v --tb=short
+
+# Full regression with HTML report
+.\venv\Scripts\python.exe -m pytest -m regression -v --html=test-results/regression-report.html --self-contained-html
+
+# Debug a failing UI test
+.\venv\Scripts\python.exe -m pytest test_ui.py::test_U1_ui_login -v --headed --slowmo 800
+```
+
+---
+
+## Environment Variables
+
+Credentials are normally read from `.env`.
+
+```powershell
+$env:BASE_URL = "https://sv-students-recommend.onrender.com"
+$env:ADMIN_USER = "admin@svcollege.co.il"
+$env:ADMIN_PASSWORD = "your_admin_password"
 ```

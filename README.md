@@ -124,6 +124,7 @@ playwright==1.60.0
 pytest==9.0.3
 pytest-playwright==0.8.0
 pytest-base-url==2.1.0
+pytest-html
 python-dotenv
 requests
 ```
@@ -148,33 +149,54 @@ STUDENT_PASSWORD=your_password
 
 ```bash
 # All tests
-pytest -v
+.\venv\Scripts\python.exe -m pytest -v
 
 # With browser visible
-pytest -v --headed
+.\venv\Scripts\python.exe -m pytest -v --headed
 
 # API only
-pytest test_api.py -v
+.\venv\Scripts\python.exe -m pytest test_api.py -v
 
 # UI only
-pytest test_ui.py -v
+.\venv\Scripts\python.exe -m pytest test_ui.py -v
 
 # Bonus only
-pytest test_bonus.py -v
+.\venv\Scripts\python.exe -m pytest test_bonus.py -v
 
 # By marker
-pytest -m smoke -v
-pytest -m errors_handling -v
-pytest -m mobile -v
-pytest -m boundary -v
-pytest -m system -v
+.\venv\Scripts\python.exe -m pytest -m smoke -v
+.\venv\Scripts\python.exe -m pytest -m errors_handling -v
+.\venv\Scripts\python.exe -m pytest -m mobile -v
+.\venv\Scripts\python.exe -m pytest -m boundary -v
+.\venv\Scripts\python.exe -m pytest -m system -v
+
+# HTML report
+.\venv\Scripts\python.exe -m pytest -v --html=test-results/report.html --self-contained-html
 
 # Single test
-pytest test_api.py::test_A7_list_all_recommendations -v
-pytest test_bonus.py::test_B1_blacklisted_email_cannot_register -v --headed
+.\venv\Scripts\python.exe -m pytest test_api.py::test_A7_list_all_recommendations -v
+.\venv\Scripts\python.exe -m pytest test_bonus.py::test_B1_blacklisted_email_cannot_register -v --headed
 ```
 
 See `pytest_commands.md` for full list of run options.
+
+---
+
+## HTML report
+
+The project supports shareable HTML reports via `pytest-html`.
+
+```bash
+.\venv\Scripts\python.exe -m pytest -v --html=test-results/report.html --self-contained-html
+```
+
+The report is generated here:
+
+```text
+test-results/report.html
+```
+
+This report includes the test list, pass/fail status, failure details, environment information, and a clean browser-viewable summary for submission.
 
 ---
 
@@ -258,8 +280,10 @@ Result: **2/2 passed**
 
 - All tests use `data-test` attributes for selectors (most reliable, confirmed from class examples)
 - Fresh unique user generated every run via `conftest.py::fresh_user` fixture
-- Screenshots taken automatically after every test (pass and fail) into `test-results/`
+- Browser screenshots are taken automatically for tests that use the Playwright `page` fixture and saved into `test-results/`
+- API tests are included in `test-results/results.txt`; they do not create screenshots because they do not open a browser page
 - Results summary written to `test-results/results.txt` after every run
+- HTML reports can be generated into `test-results/report.html` with `pytest-html`
 - Mobile tests run on iPhone 17, Samsung 26, and Desktop Chrome via `@pytest.mark.parametrize`
 - Bonus B1 verifies that an admin-blocked email cannot register.
 - Bonus B2 verifies that suspended recommendations block new recommendation creation, then re-enables the feature during cleanup.
