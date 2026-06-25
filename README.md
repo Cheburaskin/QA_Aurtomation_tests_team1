@@ -85,14 +85,11 @@ playwright install
 ```
 
 ### 4. Configure credentials
-Edit `.env` (already included):
+Copy the example file and fill in your credentials:
+```bash
+copy .env.example .env
 ```
-BASE_URL=https://sv-students-recommend.onrender.com
-ADMIN_USER=admin@svcollege.co.il
-ADMIN_PASSWORD=test1234
-STUDENT_USER=your_email@example.com
-STUDENT_PASSWORD=abcdef
-```
+Then edit `.env` with the real values.
 
 ---
 
