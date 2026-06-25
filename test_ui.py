@@ -178,10 +178,10 @@ def test_U3_ui_create_recommendation(fast_logged_in_page: Page):
     
     # 4. Assert that the recommendation was created successfully   
     expect(page).to_have_url(f"{BASE_URL}/pages/home.html")
-    expect(page.get_by_text("Test12345")).to_be_visible()
+    expect(page.get_by_text("Test12345").first).to_be_visible()
     
     # 5. Clean up by deleting the created recommendation
-    page.get_by_text("Test12345").click()
+    page.get_by_text("Test12345").first.click()
     page.wait_for_load_state("networkidle")
     page.locator("[data-test=\"btn-delete-recommendation\"]").click()
     page.locator("[data-test=\"btn-confirm-delete\"]").click()
