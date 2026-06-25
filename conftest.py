@@ -89,7 +89,7 @@ def fast_logged_in_page(page: Page, playwright: Playwright) -> Page:
 @pytest.fixture()
 def make_unique_email_f() -> str:
     """Return a unique email address for each test run."""
-    return f"test_{uuid.uuid4().hex[:12]}@example.com"
+    return f"test{uuid.uuid4().hex[:12]}@example.com"
 
 
 # ── API fixtures ──────────────────────────────────────────────────────────────

@@ -94,7 +94,7 @@ def test_U17_ui_password_min_valid_6_chars(page: Page, make_unique_email_f: str)
     
     # 2. Fill the registration form with a valid password of 6 characters
     unique_email = make_unique_email_f
-    page.get_by_label("Name").fill("Test User")
+    page.get_by_label("Student Name").fill("Test User")
     page.get_by_label("Email").fill(unique_email)
     page.locator('[data-test="input-password"]').fill("123456")  
     page.get_by_role("button", name="Create Account").click()
