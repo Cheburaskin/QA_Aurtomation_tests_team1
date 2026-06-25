@@ -178,7 +178,17 @@ See `pytest_commands.md` for full list of run options.
 
 ## Results table
 
+Last full run: **2026-06-25 20:36-20:40** using:
+
+```bash
+.\venv\Scripts\python.exe -m pytest test_api.py -v
+.\venv\Scripts\python.exe -m pytest test_ui.py -v
+.\venv\Scripts\python.exe -m pytest test_bonus.py -v
+```
+
 ### API tests
+
+Result: **5/6 passed**
 
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
@@ -191,33 +201,44 @@ See `pytest_commands.md` for full list of run options.
 
 ### UI tests
 
-> UI test results will be added after running `test_ui.py`.
+Result: **19/19 passed**  
+Includes 16 UI tests plus 3 responsive runs: iPhone 17, Samsung 26, Desktop Chrome.
 
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
-| U1 | test_U1_ui_login | | |
-| U2 | test_U2_ui_store_checkout_flow | | |
-| U3 | test_U3_ui_create_recommendation | | |
-| U4 | test_U4_ui_logo_navigation | | |
-| U5 | test_U5_ui_register_then_login | | |
-| U6 | test_U6_ui_filter_recommendations | | |
-| U7 | test_U7_ui_add_to_cart_updates_counter | | |
-| U8 | test_U8_ui_logout | | |
-| U9 | test_U9_ui_login_invalid_credentials | | |
-| U10 | test_U10_ui_payment_validation_empty_card | | |
-| U11 | test_U11_ui_add_recommendation_missing_your_name | | |
-| U12 | test_U12_ui_access_control_via_url | | |
-| U17 | test_U17_ui_password_min_valid_6_chars | | |
-| U18 | test_U18_ui_password_min_invalid_3_chars | | |
-| U21 | test_U21_ui_password_show_hide | | |
-| U23 | test_U23_ui_cart_math_recalculation | | |
+| U1 | test_U1_ui_login | ✅ Pass | |
+| U2 | test_U2_ui_store_checkout_flow | ✅ Pass | |
+| U3 | test_U3_ui_create_recommendation | ✅ Pass | |
+| U4 | test_U4_ui_logo_navigation | ✅ Pass | |
+| U5 | test_U5_ui_register_then_login | ✅ Pass | |
+| U6 | test_U6_ui_filter_recommendations | ✅ Pass | |
+| U7 | test_U7_ui_add_to_cart_updates_counter | ✅ Pass | |
+| U8 | test_U8_ui_logout | ✅ Pass | |
+| U9 | test_U9_ui_login_invalid_credentials | ✅ Pass | |
+| U10 | test_U10_ui_payment_validation_empty_card | ✅ Pass | |
+| U11 | test_U11_ui_add_recommendation_missing_your_name | ✅ Pass | |
+| U12 | test_U12_ui_access_control_via_url | ✅ Pass | |
+| U17 | test_U17_ui_password_min_valid_6_chars | ✅ Pass | |
+| U18 | test_U18_ui_password_min_invalid_3_chars | ✅ Pass | |
+| U21 | test_U21_ui_password_show_hide | ✅ Pass | |
+| U23 | test_U23_ui_cart_math_recalculation | ✅ Pass | |
+
+### Responsive tests
+
+| Test ID | Test name | Pass / Fail | Notes |
+|---------|-----------|-------------|-------|
+| Mobile | test_login_responsive[iPhone 17] | ✅ Pass | |
+| Mobile | test_login_responsive[Samsung 26] | ✅ Pass | |
+| Mobile | test_login_responsive[Desktop Chrome] | ✅ Pass | |
 
 ### Bonus tests
 
+Result: **2/2 passed**
+
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
-| B1 | test_B1_blacklisted_email_cannot_register | | |
-| B2 | test_B2_suspended_recommendations_blocks_creation | | |
+| B1 | test_B1_blacklisted_email_cannot_register | ✅ Pass | |
+| B2 | test_B2_suspended_recommendations_blocks_creation | ✅ Pass | |
 
 ---
 
@@ -227,8 +248,6 @@ See `pytest_commands.md` for full list of run options.
 |---|------|----------|----------|---------|
 | 1 | A1, U17, U18 | Password minimum **4** chars (English SRS 3.1.2) | API enforces minimum **6** chars — error: "Password should be at least 6 characters." | 🐛 Bug — SRS contradicts API |
 | 2 | A4 | Empty category → **400** rejected, recommendation not created (SRS 3.3.3) | API returns **201** and defaults category to 'Movie' — mandatory field not validated | 🐛 Bug — API accepts invalid data |
-
----
 
 ## Technical notes
 
