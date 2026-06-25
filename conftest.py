@@ -5,12 +5,13 @@ Credentials are loaded from the .env file:
   BASE_URL        — the app URL
   ADMIN_USER      — admin email
   ADMIN_PASSWORD  — admin password
-  STUDENT_USER    — regular user email
-  STUDENT_PASSWORD — regular user password
+
+Student credentials are no longer needed — fresh_user and
+fast_logged_in_page fixtures create a new unique user every run.
 """
 
 import os
-import time
+import uuid
 import pytest
 from pathlib import Path
 from datetime import datetime
@@ -19,11 +20,9 @@ from playwright.sync_api import Page, Playwright
 
 load_dotenv()
 
-BASE             = os.getenv("BASE_URL",          "https://sv-students-recommend.onrender.com")
-ADMIN_EMAIL      = os.getenv("ADMIN_USER",         "admin@svcollege.co.il")
-ADMIN_PASSWORD   = os.getenv("ADMIN_PASSWORD",     "")
-STUDENT_EMAIL    = os.getenv("STUDENT_USER",       "")
-STUDENT_PASSWORD = os.getenv("STUDENT_PASSWORD",   "")
+BASE           = os.getenv("BASE_URL",        "https://sv-students-recommend.onrender.com")
+ADMIN_EMAIL    = os.getenv("ADMIN_USER",       "admin@svcollege.co.il")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD",   "")
 
 # ── screenshot / results folder ───────────────────────────────────────────────
 SHOTS = Path(__file__).parent / "test-results"
@@ -31,10 +30,33 @@ SHOTS.mkdir(parents=True, exist_ok=True)
 RESULTS = []
 
 
+# ── helper: register a fresh unique user via API ──────────────────────────────
+
+def _register_fresh_user(playwright: Playwright) -> dict:
+    """
+    Register a brand-new unique user via the API.
+    Returns dict with email, password, name.
+    Used by fresh_user and fast_logged_in_page fixtures.
+    """
+    email    = f"test_{uuid.uuid4().hex[:12]}@example.com"
+    password = "abcdef"
+    name     = "Fresh Student"
+
+    api = playwright.request.new_context(base_url=BASE)
+    res = api.post("/auth/register", data={
+        "name": name, "email": email, "password": password
+    })
+    status = res.status
+    text   = res.text()
+    api.dispose()
+    assert status in (200, 201), f"Registration failed: HTTP {status} — {text}"
+    return {"email": email, "password": password, "name": name}
+
+
 # ── UI fixtures ───────────────────────────────────────────────────────────────
 
 @pytest.fixture
-def login_as_admin(page: Page):
+def login_as_admin(page: Page) -> Page:
     """Log in as admin and yield the authenticated page."""
     page.goto(f"{BASE}/pages/login.html")
     page.wait_for_load_state("networkidle")
@@ -45,23 +67,36 @@ def login_as_admin(page: Page):
     yield page
 
 
-@pytest.fixture
-def login_as_student(page: Page):
-    """Log in as a regular student user and yield the authenticated page."""
+@pytest.fixture()
+def fast_logged_in_page(page: Page, playwright: Playwright) -> Page:
+    """
+    Register a fresh unique user via API, log in via UI,
+    and yield the authenticated page.
+    Used by Ron's tests in test_ui.py.
+    Fresh user every run — no dependency on .env student credentials.
+    """
+    user = _register_fresh_user(playwright)
+
     page.goto(f"{BASE}/pages/login.html")
     page.wait_for_load_state("networkidle")
-    page.get_by_label("Email").fill(STUDENT_EMAIL)
-    page.locator("[data-test='input-password']").fill(STUDENT_PASSWORD)
+    page.get_by_label("Email").fill(user["email"])
+    page.locator("[data-test='input-password']").fill(user["password"])
     page.get_by_role("button", name="Sign In").click()
     page.wait_for_load_state("networkidle")
     yield page
 
 
-# ── API fixture ───────────────────────────────────────────────────────────────
+@pytest.fixture()
+def make_unique_email_f() -> str:
+    """Return a unique email address for each test run."""
+    return f"test_{uuid.uuid4().hex[:12]}@example.com"
+
+
+# ── API fixtures ──────────────────────────────────────────────────────────────
 
 @pytest.fixture
 def auth_token(playwright: Playwright) -> str:
-    """Log in via API and return the Bearer token."""
+    """Log in as admin via API and return the Bearer token."""
     api = playwright.request.new_context(base_url=BASE)
     res = api.post("/auth/login", data={
         "email":    ADMIN_EMAIL,
@@ -76,49 +111,46 @@ def auth_token(playwright: Playwright) -> str:
     return token
 
 
-@pytest.fixture
+@pytest.fixture()
 def fresh_user(playwright: Playwright) -> dict:
-    """Register a brand-new unique user via the API and return its credentials + token."""
-    email    = f"test_{int(time.time())}@example.com"
-    password = STUDENT_PASSWORD
-    name     = "Fresh Student"
-
-    api = playwright.request.new_context(base_url=BASE)
-    res = api.post("/auth/register", data={
-        "name": name, "email": email, "password": password
-    })
-    status = res.status
-    text   = res.text()
-    api.dispose()
-    assert status in (200, 201), f"Registration failed: HTTP {status} — {text}"
+    """
+    Register a brand-new unique user via the API and return
+    dict with email, password, name, token.
+    Used by API tests.
+    """
+    user  = _register_fresh_user(playwright)
 
     # log in to get token
-    api2 = playwright.request.new_context(base_url=BASE)
-    res2 = api2.post("/auth/login", data={"email": email, "password": password})
-    s2   = res2.status
-    b2   = res2.json()
-    api2.dispose()
-    assert s2 == 200, f"Login failed: {b2}"
-    token = b2.get("access_token")
-    assert token, f"No token: {b2}"
-    return {"email": email, "password": password, "name": name, "token": token}
+    api = playwright.request.new_context(base_url=BASE)
+    res = api.post("/auth/login", data={
+        "email":    user["email"],
+        "password": user["password"],
+    })
+    status = res.status
+    body   = res.json()
+    api.dispose()
+    assert status == 200, f"Login failed: {body}"
+    token = body.get("access_token")
+    assert token, f"No token: {body}"
+    user["token"] = token
+    return user
 
 
-@pytest.fixture
+@pytest.fixture()
 def fresh_user_token(fresh_user: dict) -> str:
+    """Return just the token from the fresh_user fixture."""
     return fresh_user["token"]
 
 
 # ── screenshot + results table hooks ─────────────────────────────────────────
 
-@pytest.hookimpl(hookwrapper=True)
+@pytest.hookimpl(wrapper=True)
 def pytest_runtest_makereport(item, call):
     """Take a screenshot after each test and collect results."""
-    outcome = yield
-    report  = outcome.get_result()
+    report = yield
 
     if report.when != "call":
-        return
+        return report
 
     page = item.funcargs.get("page")
     shot_path = ""
@@ -142,6 +174,7 @@ def pytest_runtest_makereport(item, call):
         "note":     note,
         "snapshot": str(shot_path),
     })
+    return report
 
 
 def pytest_sessionfinish(session, exitstatus):
