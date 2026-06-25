@@ -1,2 +1,167 @@
-# QA_Aurtomation_tests_team1
-This project contains automated tests for the SV Students Recommend application as part of a QA Automation course.
+# SV Students Recommend — QA Automation Tests
+
+Automated API and UI end-to-end tests for the [SV Students Recommend](https://sv-students-recommend.onrender.com) web application.
+Built with **Playwright + Python + pytest** as part of a QA Automation course at SV College.
+
+---
+
+## Project structure
+
+```
+sv-recommend-qa/
+  conftest.py              # shared fixtures, hooks, auto-screenshots
+  pytest.ini               # markers definition
+  pytest_commands.md       # all run options
+  requirements.txt         # dependencies
+  .env                     # credentials (not committed to Git)
+  .gitignore
+  README.md
+  │
+  ├── test_api.py           # 6 API tests: A1 A2 A3 A4 A7 A8
+  ├── test_ui_positive.py   # 7 UI tests:  U1 U2 U3 U5 U6 U7 U8
+  ├── test_ui_negative.py   # 3 UI tests:  U9 U10 U11
+  ├── test_ui_boundary.py   # 4 tests:     U17 U18 + mobile parametrized (3 devices)
+  ├── test_ui_features.py   # 2 UI tests:  U21 U23
+  │
+  └── test-results/         # auto-generated screenshots + results.txt
+```
+
+**Total: 6 API + 14 UI = 20 required tests**
+Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
+
+---
+
+## Tests chosen
+
+### API tests (6 of 10)
+| ID | Type | Test |
+|----|------|------|
+| A1 | Positive | Register a new user |
+| A2 | Positive | Login success |
+| A3 | Positive | Create recommendation (mandatory only) |
+| A4 | Negative | Create recommendation — empty category |
+| A7 | Positive | List all recommendations |
+| A8 | Negative | Login with wrong password |
+
+### UI tests (14 of 24)
+| ID | Type | Test |
+|----|------|------|
+| U1 | Positive | Login flow |
+| U2 | Positive | Store checkout flow |
+| U3 | Positive | Create recommendation |
+| U5 | Positive | Register then login |
+| U6 | Positive | Filter by Movie |
+| U7 | Positive | Add to cart updates counter |
+| U8 | Positive | Logout |
+| U9 | Negative | Invalid login shows error |
+| U10 | Negative | Payment — empty card number blocked |
+| U11 | Negative | Add Recommendation — missing Your Name |
+| U17 | Boundary | Password exactly 6 chars — passes |
+| U18 | Boundary | Password exactly 3 chars — rejected |
+| U21 | Feature | Password show/hide (eye icon) |
+| U23 | Feature | Cart math recalculation (Cup × 2 = 40 NIS) |
+
+---
+
+## Setup
+
+### 1. Clone
+```bash
+git clone https://github.com/<your-username>/sv-recommend-qa.git
+cd sv-recommend-qa
+```
+
+### 2. Virtual environment
+```bash
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Mac/Linux
+```
+
+### 3. Install
+```bash
+pip install -r requirements.txt
+playwright install
+```
+
+### 4. Configure credentials
+Edit `.env` (already included):
+```
+BASE_URL=https://sv-students-recommend.onrender.com
+ADMIN_USER=admin@svcollege.co.il
+ADMIN_PASSWORD=test1234
+STUDENT_USER=your_email@example.com
+STUDENT_PASSWORD=abcdef
+```
+
+---
+
+## Run the tests
+
+```bash
+# All tests
+pytest -v
+
+# With browser visible
+pytest -v --headed
+
+# API only
+pytest test_api.py -v
+
+# By marker
+pytest -m smoke -v
+pytest -m errors_handling -v
+pytest -m mobile -v
+
+# Single test
+pytest test_api.py::test_A7_list_all_recommendations -v
+```
+
+See `pytest_commands.md` for full list of run options.
+
+---
+## Results table
+
+| Test ID | Test name | Pass / Fail | Notes |
+|---------|-----------|-------------|-------|
+| A1 | test_A1_register_new_user | ✅ Pass | |
+| A2 | test_A2_login_success | ✅ Pass | |
+| A3 | test_A3_create_recommendation_mandatory_only | ✅ Pass | |
+| A4 | test_A4_create_recommendation_empty_category | ❌ Fail | 🐛 Bug: API returns 201 and defaults category to 'Movie' instead of rejecting. SRS 3.3.3 violated. |
+| A7 | test_A7_list_all_recommendations | ✅ Pass | |
+| A8 | test_A8_login_wrong_password | ✅ Pass | |
+| U1 | test_U1_login_success | | |
+| U2 | test_U2_store_checkout_flow | | |
+| U3 | test_U3_create_recommendation | | |
+| U5 | test_U5_register_then_login | | |
+| U6 | test_U6_filter_by_movie | | |
+| U7 | test_U7_add_to_cart_updates_counter | | |
+| U8 | test_U8_logout | | |
+| U9 | test_U9_invalid_login_shows_error | | |
+| U10 | test_U10_payment_empty_card_number_blocked | | |
+| U11 | test_U11_add_recommendation_missing_your_name_blocked | | |
+| U17 | test_U17_password_exactly_6_chars_passes | | |
+| U18 | test_U18_password_exactly_3_chars_rejected | | |
+| U21 | test_U21_password_show_hide_toggle | | |
+| U23 | test_U23_cart_math_recalculation | | |
+
+
+---
+
+## Bugs found during testing
+
+| # | Test | SRS says | App does | Verdict |
+|---|------|----------|----------|---------|
+| 1 | A1, U17, U18 | Password min **4** chars (English SRS) | API enforces min **6** chars | 🐛 Bug — SRS contradicts API |
+| 2 | A4 | Returns **400** Bad Request | Returns **422** Unprocessable Entity | ⚠️ Minor — both mean validation failure |
+| 3 | A3 | Field named `your_name` (implied) | Real field is `recommender_name` | ⚠️ SRS doesn't specify field names |
+
+---
+
+## Technical notes
+
+- All tests use `data-test` attributes for selectors (most reliable, confirmed from class examples)
+- Fresh unique user generated every run via `conftest.py::fresh_user` fixture
+- Screenshots taken automatically after every test (pass and fail) into `test-results/`
+- Results summary written to `test-results/results.txt` after every run
+- Mobile tests run on iPhone 17, Samsung 26, and Desktop Chrome via `@pytest.mark.parametrize`
