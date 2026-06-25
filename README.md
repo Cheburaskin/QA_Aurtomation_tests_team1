@@ -22,7 +22,9 @@ sv-recommend-qa/
   ├── test_ui.py            # 16 UI tests: U1 U2 U3 U4 U5 U6 U7 U8 U9 U10 U11 U12 U17 U18 U21 U23
   ├── test_bonus.py         # 2 bonus:     B1 blacklist, B2 suspend
   │
-  └── test-results/         # auto-generated screenshots + results.txt
+  └── test-results/         # auto-generated screenshots, results.txt, HTML reports
+      ├── results.txt       # text summary from conftest.py
+      └── report.html       # optional pytest-html report
 ```
 
 **Total: 8 API + 16 UI = 24 required tests + 2 bonus tests**
