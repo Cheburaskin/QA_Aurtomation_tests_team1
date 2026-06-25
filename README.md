@@ -18,21 +18,21 @@ sv-recommend-qa/
   .gitignore
   README.md
   │
-  ├── test_api.py           # 6 API tests: A1 A2 A3 A4 A7 A8
+  ├── test_api.py           # 8 API tests: A1 A2 A3 A4 A7 A8 A9 A10
   ├── test_ui.py            # 16 UI tests: U1 U2 U3 U4 U5 U6 U7 U8 U9 U10 U11 U12 U17 U18 U21 U23
   ├── test_bonus.py         # 2 bonus:     B1 blacklist, B2 suspend
   │
   └── test-results/         # auto-generated screenshots + results.txt
 ```
 
-**Total: 6 API + 16 UI = 22 required tests + 2 bonus tests**
+**Total: 8 API + 16 UI = 24 required tests + 2 bonus tests**
 Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 
 ---
 
 ## Tests chosen
 
-### API tests (6 of 10)
+### API tests (8)
 
 | ID | Type | Test |
 |----|------|------|
@@ -42,6 +42,8 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 | A4 | Negative | Create recommendation — empty category |
 | A7 | Positive | List all recommendations |
 | A8 | Negative | Login with wrong password |
+| A9 | Positive | Get current user profile |
+| A10 | Positive | Get current Bearer token |
 
 ### UI tests (16 of 24)
 
@@ -178,7 +180,8 @@ See `pytest_commands.md` for full list of run options.
 
 ## Results table
 
-Last full run: **2026-06-25 20:36-20:40** using:
+Last full UI + bonus run: **2026-06-25 20:36-20:40**  
+Last API run after adding A9 and A10: **2026-06-25 20:59**
 
 ```bash
 .\venv\Scripts\python.exe -m pytest test_api.py -v
@@ -188,7 +191,7 @@ Last full run: **2026-06-25 20:36-20:40** using:
 
 ### API tests
 
-Result: **5/6 passed**
+Result: **7/8 passed**
 
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
@@ -198,6 +201,8 @@ Result: **5/6 passed**
 | A4 | test_A4_create_recommendation_empty_category | ❌ Fail | 🐛 Bug: API returns 201 and defaults category to 'Movie' instead of rejecting. SRS 3.3.3 violated. |
 | A7 | test_A7_list_all_recommendations | ✅ Pass | |
 | A8 | test_A8_login_wrong_password | ✅ Pass | |
+| A9 | test_A9_get_current_user_profile | ✅ Pass | |
+| A10 | test_A10_get_current_bearer_token | ✅ Pass | |
 
 ### UI tests
 

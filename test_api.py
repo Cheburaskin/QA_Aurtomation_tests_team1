@@ -1,6 +1,6 @@
 """
-test_api.py — 6 API tests chosen from the test bank.
-Chosen: A1, A2, A3, A4, A7, A8
+test_api.py — 8 API tests chosen from the test bank.
+Chosen: A1, A2, A3, A4, A7, A8, A9, A10
 
 Follows class standards:
   - @pytest.mark.api marker on every test
@@ -219,4 +219,66 @@ def test_A8_login_wrong_password(playwright: Playwright, fresh_user: dict):
     assert not token, f"Token should NOT be returned on wrong password: {token}"
     assert "detail" in body or "message" in body, (
         f"Expected error detail in body: {body}"
+    )
+
+
+# ── A9 · Positive — Get current user profile ─────────────────────────────────
+
+
+@pytest.mark.sanity
+@pytest.mark.regression
+def test_A9_get_current_user_profile(playwright: Playwright, fresh_user: dict):
+    """
+    A9 · Positive — Profile endpoint
+    GET /api/profile/me with a valid Bearer token.
+    Expected: 200 OK; response body contains the logged-in user's profile data.
+    """
+    api = playwright.request.new_context(base_url=BASE)
+    res = api.get(
+        "/api/profile/me",
+        headers={"authorization": f"Bearer {fresh_user['token']}"},
+    )
+    status = res.status
+    body = res.json()
+    api.dispose()
+
+    assert status == 200, f"Expected 200, got {status}. Body: {body}"
+    assert body.get("email") == fresh_user["email"], (
+        f"Expected email '{fresh_user['email']}', got '{body.get('email')}'"
+    )
+    assert body.get("name") == fresh_user["name"], (
+        f"Expected name '{fresh_user['name']}', got '{body.get('name')}'"
+    )
+    assert "id" in body, f"Missing 'id' in profile response: {body}"
+    assert "is_admin" in body, f"Missing 'is_admin' in profile response: {body}"
+
+
+# ── A10 · Positive — Get current Bearer token ────────────────────────────────
+
+
+@pytest.mark.sanity
+@pytest.mark.regression
+def test_A10_get_current_bearer_token(playwright: Playwright, fresh_user: dict):
+    """
+    A10 · Positive — Profile token endpoint
+    GET /api/profile/token with a valid Bearer token.
+    Expected: 200 OK; response body contains the current access_token.
+    """
+    api = playwright.request.new_context(base_url=BASE)
+    res = api.get(
+        "/api/profile/token",
+        headers={"authorization": f"Bearer {fresh_user['token']}"},
+    )
+    status = res.status
+    body = res.json()
+    api.dispose()
+
+    assert status == 200, f"Expected 200, got {status}. Body: {body}"
+    token = body.get("access_token") or body.get("token")
+    assert token, f"No token in response: {body}"
+    assert token == fresh_user["token"], (
+        "Token endpoint should return the same token used for authorization"
+    )
+    assert isinstance(token, str) and len(token) > 10, (
+        f"Token looks invalid: {token}"
     )
