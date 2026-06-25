@@ -14,6 +14,7 @@ sv-recommend-qa/
   pytest_commands.md       # all run options
   requirements.txt         # dependencies
   .env                     # credentials (not committed to Git)
+  .env.example             # credentials template (safe to commit)
   .gitignore
   README.md
   │
@@ -22,11 +23,12 @@ sv-recommend-qa/
   ├── test_ui_negative.py   # 3 UI tests:  U9 U10 U11
   ├── test_ui_boundary.py   # 4 tests:     U17 U18 + mobile parametrized (3 devices)
   ├── test_ui_features.py   # 2 UI tests:  U21 U23
+  ├── test_bonus.py         # 2 bonus:     B1 blacklist, B2 suspend
   │
   └── test-results/         # auto-generated screenshots + results.txt
 ```
 
-**Total: 6 API + 14 UI = 20 required tests**
+**Total: 6 API + 14 UI = 20 required tests + 2 bonus tests**
 Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 
 ---
@@ -34,6 +36,7 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 ## Tests chosen
 
 ### API tests (6 of 10)
+
 | ID | Type | Test |
 |----|------|------|
 | A1 | Positive | Register a new user |
@@ -44,6 +47,7 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 | A8 | Negative | Login with wrong password |
 
 ### UI tests (14 of 24)
+
 | ID | Type | Test |
 |----|------|------|
 | U1 | Positive | Login flow |
@@ -60,6 +64,13 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 | U18 | Boundary | Password exactly 3 chars — rejected |
 | U21 | Feature | Password show/hide (eye icon) |
 | U23 | Feature | Cart math recalculation (Cup × 2 = 40 NIS) |
+
+### Bonus tests
+
+| ID | Type | Test |
+|----|------|------|
+| B1 | System | Blacklisted email cannot register |
+| B2 | System | Suspended recommendations blocks creation |
 
 ---
 
@@ -89,7 +100,14 @@ Copy the example file and fill in your credentials:
 ```bash
 copy .env.example .env
 ```
-Then edit `.env` with the real values.
+Then edit `.env` with the real values:
+```
+BASE_URL=https://sv-students-recommend.onrender.com
+ADMIN_USER=admin@svcollege.co.il
+ADMIN_PASSWORD=your_admin_password
+STUDENT_USER=your_email@example.com
+STUDENT_PASSWORD=your_password
+```
 
 ---
 
@@ -109,6 +127,8 @@ pytest test_api.py -v
 pytest -m smoke -v
 pytest -m errors_handling -v
 pytest -m mobile -v
+pytest -m boundary -v
+pytest -m system -v
 
 # Single test
 pytest test_api.py::test_A7_list_all_recommendations -v
@@ -117,7 +137,10 @@ pytest test_api.py::test_A7_list_all_recommendations -v
 See `pytest_commands.md` for full list of run options.
 
 ---
+
 ## Results table
+
+### API tests
 
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
@@ -127,6 +150,13 @@ See `pytest_commands.md` for full list of run options.
 | A4 | test_A4_create_recommendation_empty_category | ❌ Fail | 🐛 Bug: API returns 201 and defaults category to 'Movie' instead of rejecting. SRS 3.3.3 violated. |
 | A7 | test_A7_list_all_recommendations | ✅ Pass | |
 | A8 | test_A8_login_wrong_password | ✅ Pass | |
+
+### UI tests
+
+> UI test results will be added after running test_ui_*.py files.
+
+| Test ID | Test name | Pass / Fail | Notes |
+|---------|-----------|-------------|-------|
 | U1 | test_U1_login_success | | |
 | U2 | test_U2_store_checkout_flow | | |
 | U3 | test_U3_create_recommendation | | |
@@ -142,6 +172,12 @@ See `pytest_commands.md` for full list of run options.
 | U21 | test_U21_password_show_hide_toggle | | |
 | U23 | test_U23_cart_math_recalculation | | |
 
+### Bonus tests
+
+| Test ID | Test name | Pass / Fail | Notes |
+|---------|-----------|-------------|-------|
+| B1 | test_B1_blacklisted_email_cannot_register | | |
+| B2 | test_B2_suspended_recommendations_blocks_creation | | |
 
 ---
 
@@ -151,6 +187,7 @@ See `pytest_commands.md` for full list of run options.
 |---|------|----------|----------|---------|
 | 1 | A1, U17, U18 | Password minimum **4** chars (English SRS 3.1.2) | API enforces minimum **6** chars — error: "Password should be at least 6 characters." | 🐛 Bug — SRS contradicts API |
 | 2 | A4 | Empty category → **400** rejected, recommendation not created (SRS 3.3.3) | API returns **201** and defaults category to 'Movie' — mandatory field not validated | 🐛 Bug — API accepts invalid data |
+
 ---
 
 ## Technical notes
@@ -160,3 +197,4 @@ See `pytest_commands.md` for full list of run options.
 - Screenshots taken automatically after every test (pass and fail) into `test-results/`
 - Results summary written to `test-results/results.txt` after every run
 - Mobile tests run on iPhone 17, Samsung 26, and Desktop Chrome via `@pytest.mark.parametrize`
+- Credentials stored in `.env` file — never committed to GitHub
