@@ -19,16 +19,13 @@ sv-recommend-qa/
   README.md
   │
   ├── test_api.py           # 6 API tests: A1 A2 A3 A4 A7 A8
-  ├── test_ui_positive.py   # 7 UI tests:  U1 U2 U3 U5 U6 U7 U8
-  ├── test_ui_negative.py   # 3 UI tests:  U9 U10 U11
-  ├── test_ui_boundary.py   # 4 tests:     U17 U18 + mobile parametrized (3 devices)
-  ├── test_ui_features.py   # 2 UI tests:  U21 U23
+  ├── test_ui.py            # 16 UI tests: U1 U2 U3 U4 U5 U6 U7 U8 U9 U10 U11 U12 U17 U18 U21 U23
   ├── test_bonus.py         # 2 bonus:     B1 blacklist, B2 suspend
   │
   └── test-results/         # auto-generated screenshots + results.txt
 ```
 
-**Total: 6 API + 14 UI = 20 required tests + 2 bonus tests**
+**Total: 6 API + 16 UI = 22 required tests + 2 bonus tests**
 Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 
 ---
@@ -46,13 +43,14 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 | A7 | Positive | List all recommendations |
 | A8 | Negative | Login with wrong password |
 
-### UI tests (14 of 24)
+### UI tests (16 of 24)
 
 | ID | Type | Test |
 |----|------|------|
 | U1 | Positive | Login flow |
 | U2 | Positive | Store checkout flow |
 | U3 | Positive | Create recommendation |
+| U4 | Positive | Logo navigation back to Home |
 | U5 | Positive | Register then login |
 | U6 | Positive | Filter by Movie |
 | U7 | Positive | Add to cart updates counter |
@@ -60,6 +58,7 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 | U9 | Negative | Invalid login shows error |
 | U10 | Negative | Payment — empty card number blocked |
 | U11 | Negative | Add Recommendation — missing Your Name |
+| U12 | Negative | Regular user cannot access Admin page directly |
 | U17 | Boundary | Password exactly 6 chars — passes |
 | U18 | Boundary | Password exactly 3 chars — rejected |
 | U21 | Feature | Password show/hide (eye icon) |
@@ -71,6 +70,27 @@ Plus: 3 parametrized mobile runs (iPhone 17 / Samsung 26 / Desktop Chrome)
 |----|------|------|
 | B1 | System | Blacklisted email cannot register |
 | B2 | System | Suspended recommendations blocks creation |
+
+---
+
+## Pytest markers
+
+The project uses the following markers in `pytest.ini`:
+
+| Marker | Purpose |
+|--------|---------|
+| api | API-level tests |
+| ui | UI-level tests |
+| mobile | Mobile / responsive tests |
+| smoke | Basic functionality checks |
+| sanity | Quick validation checks |
+| regression | Regression coverage |
+| errors_handling | Error handling and validation |
+| system | End-to-end system scenarios |
+| boundary | Boundary value tests |
+| positive | Positive flows |
+| negative | Negative / blocked flows |
+| focus | Tests currently being debugged |
 
 ---
 
@@ -93,6 +113,17 @@ venv\Scripts\activate        # Windows
 ```bash
 pip install -r requirements.txt
 playwright install
+```
+
+Main dependencies:
+
+```txt
+playwright==1.60.0
+pytest==9.0.3
+pytest-playwright==0.8.0
+pytest-base-url==2.1.0
+python-dotenv
+requests
 ```
 
 ### 4. Configure credentials
@@ -123,6 +154,12 @@ pytest -v --headed
 # API only
 pytest test_api.py -v
 
+# UI only
+pytest test_ui.py -v
+
+# Bonus only
+pytest test_bonus.py -v
+
 # By marker
 pytest -m smoke -v
 pytest -m errors_handling -v
@@ -132,6 +169,7 @@ pytest -m system -v
 
 # Single test
 pytest test_api.py::test_A7_list_all_recommendations -v
+pytest test_bonus.py::test_B1_blacklisted_email_cannot_register -v --headed
 ```
 
 See `pytest_commands.md` for full list of run options.
@@ -153,24 +191,26 @@ See `pytest_commands.md` for full list of run options.
 
 ### UI tests
 
-> UI test results will be added after running test_ui_*.py files.
+> UI test results will be added after running `test_ui.py`.
 
 | Test ID | Test name | Pass / Fail | Notes |
 |---------|-----------|-------------|-------|
-| U1 | test_U1_login_success | | |
-| U2 | test_U2_store_checkout_flow | | |
-| U3 | test_U3_create_recommendation | | |
-| U5 | test_U5_register_then_login | | |
-| U6 | test_U6_filter_by_movie | | |
-| U7 | test_U7_add_to_cart_updates_counter | | |
-| U8 | test_U8_logout | | |
-| U9 | test_U9_invalid_login_shows_error | | |
-| U10 | test_U10_payment_empty_card_number_blocked | | |
-| U11 | test_U11_add_recommendation_missing_your_name_blocked | | |
-| U17 | test_U17_password_exactly_6_chars_passes | | |
-| U18 | test_U18_password_exactly_3_chars_rejected | | |
-| U21 | test_U21_password_show_hide_toggle | | |
-| U23 | test_U23_cart_math_recalculation | | |
+| U1 | test_U1_ui_login | | |
+| U2 | test_U2_ui_store_checkout_flow | | |
+| U3 | test_U3_ui_create_recommendation | | |
+| U4 | test_U4_ui_logo_navigation | | |
+| U5 | test_U5_ui_register_then_login | | |
+| U6 | test_U6_ui_filter_recommendations | | |
+| U7 | test_U7_ui_add_to_cart_updates_counter | | |
+| U8 | test_U8_ui_logout | | |
+| U9 | test_U9_ui_login_invalid_credentials | | |
+| U10 | test_U10_ui_payment_validation_empty_card | | |
+| U11 | test_U11_ui_add_recommendation_missing_your_name | | |
+| U12 | test_U12_ui_access_control_via_url | | |
+| U17 | test_U17_ui_password_min_valid_6_chars | | |
+| U18 | test_U18_ui_password_min_invalid_3_chars | | |
+| U21 | test_U21_ui_password_show_hide | | |
+| U23 | test_U23_ui_cart_math_recalculation | | |
 
 ### Bonus tests
 
@@ -197,4 +237,6 @@ See `pytest_commands.md` for full list of run options.
 - Screenshots taken automatically after every test (pass and fail) into `test-results/`
 - Results summary written to `test-results/results.txt` after every run
 - Mobile tests run on iPhone 17, Samsung 26, and Desktop Chrome via `@pytest.mark.parametrize`
+- Bonus B1 verifies that an admin-blocked email cannot register.
+- Bonus B2 verifies that suspended recommendations block new recommendation creation, then re-enables the feature during cleanup.
 - Credentials stored in `.env` file — never committed to GitHub
