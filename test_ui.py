@@ -111,7 +111,6 @@ def test_U17_ui_password_min_valid_6_chars(page: Page, make_unique_email_f: str)
     expect(page.locator('[data-test=\"registered-banner\"]')).to_have_text("Account created successfully! Please sign in.")
 
 # ── U18 · Positive — Password min - invalid 3 (chars) ───────────────────────────── 
-
 # ── U18 · Negative — Password min - invalid 3 (chars) ─────────────────────────────
 
 @pytest.mark.negative
@@ -143,7 +142,6 @@ def test_U18_ui_password_min_invalid_3_chars(page: Page, make_unique_email_f: st
     expect(page.locator('[data-test="error-message"]')).to_be_visible()
     # 🐛 Bug: SRS says min 6 chars but app error message says 4
     expect(page.locator('[data-test="error-message"]')).to_have_text("Password must be at least 4 characters.")
-
 
 # ── U12 · Negative — Access control via URL ───────────────────────────── 
 
@@ -473,3 +471,74 @@ def test_U23_ui_cart_math_recalculation(fast_logged_in_page: Page):
     # 40 NIS should appear on the page
     expect(page.locator("[data-test='cart-subtotal-cup']")).to_have_text("40 NIS")
     expect(page.locator("[data-test='cart-total']")).to_have_text("40 NIS")
+
+
+# ── Mobile — Login responsive test ───────────────────────────────────────────
+
+CUSTOM_DEVICES = {
+    "iPhone 17": {
+        "viewport":            {"width": 402, "height": 874},
+        "device_scale_factor": 3,
+        "is_mobile":           True,
+        "has_touch":           True,
+        "default_browser_type": "webkit",
+        "user_agent": (
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) "
+            "AppleWebKit/605.1.15 (KHTML, like Gecko) "
+            "Version/18.0 Mobile/15E148 Safari/604.1"
+        ),
+    },
+    "Samsung 26": {
+        "viewport":            {"width": 384, "height": 832},
+        "device_scale_factor": 3,
+        "is_mobile":           True,
+        "has_touch":           True,
+        "default_browser_type": "chromium",
+        "user_agent": (
+            "Mozilla/5.0 (Linux; Android 15; SM-S931B) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/130.0.0.0 Mobile Safari/537.36"
+        ),
+    },
+}
+
+
+def resolve_device(playwright, device_name):
+    """Return a context-args dict for a device name.
+    Looks in Playwright's built-in registry first, then our custom dict,
+    and treats 'Desktop Chrome' as plain desktop (empty config)."""
+    if device_name == "Desktop Chrome":
+        return {}
+    if device_name in playwright.devices:
+        return playwright.devices[device_name]
+    if device_name in CUSTOM_DEVICES:
+        return CUSTOM_DEVICES[device_name]
+    raise ValueError(f"Unknown device: {device_name!r}")
+
+
+@pytest.mark.mobile
+@pytest.mark.positive
+@pytest.mark.parametrize(
+    "device_name",
+    ["iPhone 17", "Samsung 26", "Desktop Chrome"],
+)
+def test_login_responsive(playwright, browser, device_name):
+    """
+    Mobile / Responsive — SRS 3.1.1
+    Verify login works correctly on iPhone 17, Samsung 26, and Desktop Chrome.
+    Expected: after login, redirected to home.html on all three devices.
+    Parametrized test — runs 3 times, once per device.
+    Pattern from class example: test_simple_login_as_mobile.py.
+    """
+    device  = resolve_device(playwright, device_name)
+    context = browser.new_context(**device)
+    page    = context.new_page()
+
+    page.goto(BASE_URL)
+    page.get_by_label("Email").fill(os.environ.get("ADMIN_USER", "admin@svcollege.co.il"))
+    page.locator("[data-test='input-password']").fill(os.environ.get("ADMIN_PASSWORD", ""))
+    page.get_by_role("button", name="Sign In").click()
+
+    expect(page).to_have_url(f"{BASE_URL}/pages/home.html", timeout=15000)
+
+    context.close()
