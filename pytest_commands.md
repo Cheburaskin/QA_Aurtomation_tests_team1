@@ -101,10 +101,6 @@ If your terminal already has the virtual environment activated, you can also use
 # Single API test
 .\venv\Scripts\python.exe -m pytest test_api.py::test_A7_list_all_recommendations -v
 
-# New profile API tests
-.\venv\Scripts\python.exe -m pytest test_api.py::test_A9_get_current_user_profile -v
-.\venv\Scripts\python.exe -m pytest test_api.py::test_A10_get_current_bearer_token -v
-
 # Single UI test
 .\venv\Scripts\python.exe -m pytest test_ui.py::test_U1_ui_login -v --headed
 

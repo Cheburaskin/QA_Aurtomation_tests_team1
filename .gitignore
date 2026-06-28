@@ -5,6 +5,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 test-results/*
+!test-results/
+!test-results/report.html
+!test-results/results.txt
 *.log
 *.png
-test-results/results.txt
+
