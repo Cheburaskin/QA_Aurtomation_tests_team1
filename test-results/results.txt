@@ -1,10 +1,37 @@
 ======================================================================
-TEST RESULTS  (2026-06-28 11:26)
+TEST RESULTS  (2026-06-28 11:32)
 ======================================================================
 TEST                                     STATUS NOTE
 ----------------------------------------------------------------------
+test_A1_register_new_user                PASS   
+test_A2_login_success                    PASS   
+test_A3_create_recommendation_mandatory_only PASS   
+test_A4_create_recommendation_empty_category XFAIL  Known API bug: empty category accepted, API defaults to 'Movie'. SRS 3.3.3 violated.
+test_A7_list_all_recommendations         PASS   
+test_A8_login_wrong_password             PASS   
+test_A9_get_current_user_profile         PASS   
+test_A10_get_current_bearer_token        PASS   
+test_U1_ui_login[chromium]               PASS   
+test_U2_ui_store_checkout_flow[chromium] PASS   
+test_U3_ui_create_recommendation[chromium] PASS   
+test_U4_ui_logo_navigation[chromium]     PASS   
+test_U5_ui_register_then_login[chromium] PASS   
+test_U6_ui_filter_recommendations[chromium] PASS   
+test_U7_ui_add_to_cart_updates_counter[chromium] PASS   
+test_U8_ui_logout[chromium]              PASS   
+test_U9_ui_login_invalid_credentials[chromium] PASS   
+test_U10_ui_payment_validation_empty_card[chromium] PASS   
+test_U11_ui_add_recommendation_missing_your_name[chromium] PASS   
+test_U12_ui_access_control_via_url[chromium] PASS   
+test_U17_ui_password_min_valid_6_chars[chromium] PASS   
+test_U18_ui_password_min_invalid_3_chars[chromium] PASS   
+test_U21_ui_password_show_hide[chromium] PASS   
+test_U23_ui_cart_math_recalculation[chromium] PASS   
+test_login_responsive[chromium-iPhone 17] PASS   
 test_B1_blacklisted_email_cannot_register[chromium] PASS   
 test_B2_suspended_recommendations_blocks_creation[chromium] PASS   
+test_login_responsive[chromium-Samsung 26] PASS   
+test_login_responsive[chromium-Desktop Chrome] PASS   
 ----------------------------------------------------------------------
-2/2 passed.  Snapshots in: C:\Users\gaisi\OneDrive\Documents\Private Anastasia\Anastasia\QA\Python_practice\SV Students Recommend_automation_test\sv-recommend-qa\test-results
+28/29 passed.  Snapshots in: C:\Users\gaisi\OneDrive\Documents\Private Anastasia\Anastasia\QA\Python_practice\SV Students Recommend_automation_test\sv-recommend-qa\test-results
 ======================================================================
