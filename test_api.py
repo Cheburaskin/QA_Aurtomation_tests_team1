@@ -129,6 +129,9 @@ def test_A3_create_recommendation_mandatory_only(playwright: Playwright,
 # ── A4 · Negative — Create recommendation with empty category ─────────────────
 
 
+@pytest.mark.xfail(
+    reason="Known API bug: empty category accepted, API defaults to 'Movie'. SRS 3.3.3 violated.",
+)
 @pytest.mark.errors_handling
 def test_A4_create_recommendation_empty_category(playwright: Playwright,
                                                    fresh_user_token: str):

@@ -17,6 +17,7 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 from playwright.sync_api import Page, Playwright
+from pytest_html import report
 
 load_dotenv()
 
@@ -167,13 +168,21 @@ def pytest_runtest_makereport(item, call):
     note = ""
     if report.failed:
         note = str(report.longrepr).splitlines()[-1][:120]
+    
+    if hasattr(report, "wasxfail"):
+        status = "XFAIL"
+    elif report.passed:
+        status = "PASS"
+    else:
+        status = "FAIL"
 
     RESULTS.append({
         "test":     item.name,
-        "status":   "PASS" if report.passed else "FAIL",
-        "note":     note,
+        "status":   status,
+        "note":     note or (report.wasxfail if hasattr(report, "wasxfail") else ""),
         "snapshot": str(shot_path),
     })
+    
     return report
 
 
