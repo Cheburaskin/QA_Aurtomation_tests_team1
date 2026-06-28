@@ -72,7 +72,6 @@ def fast_logged_in_page(page: Page, playwright: Playwright) -> Page:
     """
     Register a fresh unique user via API, log in via UI,
     and yield the authenticated page.
-    Used by Ron's tests in test_ui.py.
     Fresh user every run — no dependency on .env student credentials.
     """
     user = _register_fresh_user(playwright)

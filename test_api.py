@@ -10,8 +10,8 @@ Follows class standards:
   - multipart= for POST /api/recommendations (confirmed working)
   - Fresh unique user generated every run
 
-Run:  pytest test_api.py -v
-      pytest test_api.py -m api -v
+Run:  .\venv\Scripts\python.exe -m pytest test_api.py -v
+      .\venv\Scripts\python.exe -m pytest test_api.py -m api -v
 """
 
 import os

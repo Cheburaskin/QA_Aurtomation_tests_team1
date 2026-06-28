@@ -414,7 +414,6 @@ def test_U9_ui_login_invalid_credentials(page: Page, make_unique_email_f: str):
 
 @pytest.mark.negative
 @pytest.mark.errors_handling
-@pytest.mark.focus
 def test_U10_ui_payment_validation_empty_card(fast_logged_in_page: Page):
     """
     U10 · Negative
