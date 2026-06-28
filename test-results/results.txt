@@ -1,9 +1,10 @@
 ======================================================================
-TEST RESULTS  (2026-06-28 10:45)
+TEST RESULTS  (2026-06-28 11:01)
 ======================================================================
 TEST                                     STATUS NOTE
 ----------------------------------------------------------------------
-test_A1_register_new_user                PASS   
+test_B1_blacklisted_email_cannot_register[chromium] PASS   
+test_B2_suspended_recommendations_blocks_creation[chromium] PASS   
 ----------------------------------------------------------------------
-1/1 passed.  Snapshots in: C:\Users\gaisi\OneDrive\Documents\Private Anastasia\Anastasia\QA\Python_practice\SV Students Recommend_automation_test\sv-recommend-qa\test-results
+2/2 passed.  Snapshots in: C:\Users\gaisi\OneDrive\Documents\Private Anastasia\Anastasia\QA\Python_practice\SV Students Recommend_automation_test\sv-recommend-qa\test-results
 ======================================================================

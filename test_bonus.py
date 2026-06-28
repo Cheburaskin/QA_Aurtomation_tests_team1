@@ -166,8 +166,6 @@ def test_B1_blacklisted_email_cannot_register(login_as_admin: Page,
         page.locator("[data-test='input-password']").fill("abcdef")
         page.locator("[data-test='btn-register']").click()
 
-        page.wait_for_timeout(3000)
-
         assert validate_registration_rejected(page), (
             f"Blacklisted email '{blocked_email}' should be rejected at registration"
         )
@@ -206,9 +204,9 @@ def test_B2_suspended_recommendations_blocks_creation(login_as_admin: Page):
     # ── Step 2: go to System and suspend recommendations ─────────────────────
     page.locator("[data-test='nav-system']").click()
     page.wait_for_load_state("networkidle")
-    page.locator("[data-test='btn-toggle-recommendations']").click()
+    with page.expect_response(lambda r: r.ok and r.status != 304):
+        page.locator("[data-test='btn-toggle-recommendations']").click()
     recommendations_suspended = True
-    page.wait_for_timeout(1500)
 
     try:
         # ── Step 3 & 4: go to Add Recommendation and try to submit ───────────
@@ -221,7 +219,6 @@ def test_B2_suspended_recommendations_blocks_creation(login_as_admin: Page):
         page.get_by_label("Description").fill("test description")
         page.get_by_label("Website Link").fill("https://example.com")
         page.locator("[data-test='btn-submit-recommendation']").click()
-        page.wait_for_timeout(2000)
 
         # ── Step 5: verify error message ─────────────────────────────────────
         assert validate_suspend_error(page), (
@@ -233,5 +230,5 @@ def test_B2_suspended_recommendations_blocks_creation(login_as_admin: Page):
         if recommendations_suspended:
             page.locator("[data-test='nav-system']").click()
             page.wait_for_load_state("networkidle")
-            page.locator("[data-test='btn-toggle-recommendations']").click()
-            page.wait_for_timeout(1500)
+            with page.expect_response(lambda r: r.ok and r.status != 304):
+                page.locator("[data-test='btn-toggle-recommendations']").click()

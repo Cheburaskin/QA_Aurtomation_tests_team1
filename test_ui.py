@@ -182,7 +182,6 @@ def test_U2_ui_store_checkout_flow(fast_logged_in_page: Page):
     page.get_by_label("CVV / Secret Code").fill("123")
     page.locator("[data-test='input-expiry']").fill("2026-12")
     page.get_by_role("button", name="Place Order").click()
-    page.wait_for_timeout(3000)
 
     # 5. Assert order confirmation is shown
     assert validate_element_visible(page, "[data-test='order-success-message']"), (
@@ -482,7 +481,6 @@ def test_U11_ui_add_recommendation_missing_your_name(fast_logged_in_page: Page):
 
     # 4. Try to submit
     page.locator("[data-test='btn-submit-recommendation']").click()
-    page.wait_for_timeout(2000)
 
     # 5. Assert stays on add-recommendation page
     assert validate_url(page, f"{BASE_URL}/pages/add-recommendation.html"), (
@@ -641,7 +639,6 @@ def test_U23_ui_cart_math_recalculation(fast_logged_in_page: Page):
     page.locator("[data-test='nav-cart']").click()
     page.wait_for_load_state("networkidle")
     page.locator("button:has-text('+')").first.click()
-    page.wait_for_timeout(2000)
 
     # 4. Assert line total and grand total both show 40 NIS
     expect(page.locator("[data-test='cart-subtotal-cup']")).to_have_text("40 NIS")
