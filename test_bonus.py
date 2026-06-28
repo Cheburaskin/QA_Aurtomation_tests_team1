@@ -10,8 +10,8 @@ Both use:
   - validate_* functions (class style: URL + content check)
   - @pytest.mark decorators + docstrings
 
-Run:  .\venv\Scripts\python.exe -m pytest test_bonus.py -v --headed
-      .\venv\Scripts\python.exe -m pytest test_bonus.py -m system -v
+Run:  .\\venv\\Scripts\\python.exe -m pytest test_bonus.py -v --headed
+      .\\venv\\Scripts\\python.exe -m pytest test_bonus.py -m system -v
 """
 
 import os

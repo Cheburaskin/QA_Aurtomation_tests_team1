@@ -10,8 +10,8 @@ Follows class standards:
   - multipart= for POST /api/recommendations (confirmed working)
   - Fresh unique user generated every run
 
-Run:  .\venv\Scripts\python.exe -m pytest test_api.py -v
-      .\venv\Scripts\python.exe -m pytest test_api.py -m api -v
+Run:  .\\venv\\Scripts\\python.exe -m pytest test_api.py -v
+      .\\venv\\Scripts\\python.exe -m pytest test_api.py -m api -v
 """
 
 import os
@@ -23,8 +23,6 @@ from playwright.sync_api import Playwright
 load_dotenv()
 
 BASE = os.getenv("BASE_URL", "https://sv-students-recommend.onrender.com")
-STUDENT_PASSWORD = os.getenv("STUDENT_PASSWORD", "")
-
 pytestmark = pytest.mark.api
 
 # ── A1 · Positive — Register a new user ───────────────────────────────────────
@@ -39,13 +37,14 @@ def test_A1_register_new_user(playwright: Playwright):
 
     BUG FOUND: SRS says minimum 4 characters but API enforces minimum 6.
     """
-    api   = playwright.request.new_context(base_url=BASE)
-    email = f"test_{int(time.time())}@example.com"
+    api      = playwright.request.new_context(base_url=BASE)
+    email    = f"test{int(time.time())}@example.com"
+    password = f"pw_{int(time.time())}"
 
     res    = api.post("/auth/register", data={
         "name":     "Test Student",
         "email":    email,
-        "password": STUDENT_PASSWORD,
+        "password": password,
     })
     status = res.status
     body   = res.json()

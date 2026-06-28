@@ -10,4 +10,3 @@ test-results/*
 !test-results/results.txt
 *.log
 *.png
-
